@@ -84,7 +84,11 @@
             </div>
 
             <div id="answers-grid" class="grid grid-cols-2 gap-3 w-full my-4"></div>
-            <div id="feedback-msg" class="h-6 font-bold text-sm"></div>
+            
+            <!-- ÁREA DE FEEDBACK COM JUSTIFICATIVA -->
+            <div id="feedback-container" class="min-h-[70px] w-full flex items-center justify-center">
+                <div id="feedback-msg" class="w-full p-3 rounded-2xl text-xs sm:text-sm font-bold hidden"></div>
+            </div>
         </div>
 
         <!-- TELA FINAL DO QUIZ -->
@@ -235,7 +239,10 @@
             document.getElementById('q-num').innerText = quizIndex + 1;
             document.getElementById('q-progress').style.width = `${((quizIndex+1)/10)*100}%`;
             document.getElementById('question-text').innerText = `${q.a} × ${q.b} = ?`;
-            document.getElementById('feedback-msg').innerText = '';
+            
+            const feedbackBox = document.getElementById('feedback-msg');
+            feedbackBox.classList.add('hidden');
+            feedbackBox.innerText = '';
 
             let opts = [q.ans];
             while(opts.length < 4){
@@ -250,33 +257,64 @@
                 const btn = document.createElement('button');
                 btn.className = 'py-3.5 bg-white border-2 border-indigo-200 text-indigo-900 font-extrabold text-2xl rounded-2xl shadow-sm hover:border-indigo-500 active:scale-95 transition-all btn-push';
                 btn.innerText = val;
-                btn.onclick = () => checkAnswer(val, q.ans);
+                btn.onclick = () => checkAnswer(val, q, btn);
                 grid.appendChild(btn);
             });
         }
 
-        function checkAnswer(selected, correct) {
-            const feedback = document.getElementById('feedback-msg');
-            if(selected === correct) {
+        function checkAnswer(selected, q, selectedBtn) {
+            const feedbackBox = document.getElementById('feedback-msg');
+            feedbackBox.classList.remove('hidden');
+            
+            const allBtns = Array.from(document.getElementById('answers-grid').children);
+            allBtns.forEach(b => b.disabled = true);
+
+            let delayMs = 1200;
+
+            if(selected === q.ans) {
                 playAudio('correct');
                 score += 10; correctAnswers++;
-                feedback.className = "h-6 font-bold text-sm text-emerald-600 flex items-center justify-center gap-1";
-                feedback.innerText = "✨ Muito bem! Você acertou!";
+                selectedBtn.classList.remove('bg-white', 'border-indigo-200');
+                selectedBtn.classList.add('bg-emerald-500', 'text-white', 'border-emerald-600');
+                
+                feedbackBox.className = "w-full p-3 rounded-2xl text-xs sm:text-sm font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center gap-1";
+                feedbackBox.innerHTML = "✨ <b>Muito bem!</b> Resposta correta!";
                 confetti({ particleCount: 30, spread: 60, origin: { y: 0.7 } });
             } else {
                 playAudio('wrong');
                 wrongAnswers++;
-                feedback.className = "h-6 font-bold text-sm text-rose-500 flex items-center justify-center gap-1";
-                feedback.innerText = `Ops! O certo era ${correct}.`;
+                delayMs = 5000; // Tempo de 5 segundos para a leitura da justificativa
+
+                selectedBtn.classList.remove('bg-white', 'border-indigo-200');
+                selectedBtn.classList.add('bg-rose-500', 'text-white', 'border-rose-600');
+
+                allBtns.forEach(b => {
+                    if(parseInt(b.innerText) === q.ans) {
+                        b.classList.remove('bg-white', 'border-indigo-200');
+                        b.classList.add('bg-emerald-100', 'border-emerald-400', 'text-emerald-800');
+                    }
+                });
+
+                const additionArray = Array(q.b).fill(q.a);
+                const additionText = additionArray.length <= 5 ? additionArray.join(' + ') : `${q.a} somado ${q.b} vezes`;
+
+                feedbackBox.className = "w-full p-3 rounded-2xl text-xs sm:text-sm font-medium bg-rose-50 text-rose-800 border border-rose-200 text-left";
+                feedbackBox.innerHTML = `
+                    <div class="font-bold text-rose-700 mb-0.5">💡 Ops! O correto é ${q.ans}</div>
+                    <div class="text-xs text-rose-600">
+                        <b>Por quê?</b> ${q.a} × ${q.b} significa somar <b>${q.a}</b> (${q.b} vezes):<br>
+                        <span class="font-mono bg-white px-1.5 py-0.5 rounded border border-rose-200 inline-block mt-1">${additionText} = ${q.ans}</span>
+                    </div>
+                `;
             }
+            
             updateQuizHeader();
 
-            Array.from(document.getElementById('answers-grid').children).forEach(b => b.disabled = true);
             setTimeout(() => {
                 quizIndex++;
                 if(quizIndex < 10) renderQuestion();
                 else showResults();
-            }, 1000);
+            }, delayMs);
         }
 
         function showResults() {
