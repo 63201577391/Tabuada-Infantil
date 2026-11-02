@@ -1,762 +1,269 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tabuada Divertida Infantil 🎈</title>
-
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        brandYellow: '#FFDE59',
-                        brandOrange: '#FF914D',
-                        brandPink: '#FF66C4',
-                        brandPurple: '#8C52FF',
-                        brandBlue: '#5271FF',
-                        brandGreen: '#00C2CB',
-                    },
-                    fontFamily: {
-                        sans: ['Nunito', 'Fredoka', 'Comic Sans MS', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
-
-    <!-- Google Fonts: Nunito -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900;1000&display=swap" rel="stylesheet">
-    
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Canvas Confetti -->
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-
-    <style>
-        body {
-            font-family: 'Nunito', 'Comic Sans MS', sans-serif;
-            background: linear-gradient(135deg, #A8EDEA 0%, #FED6E3 100%);
-            user-select: none;
-            -webkit-user-select: none;
-        }
-
-        .btn-pop {
-            transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        .btn-pop:active {
-            transform: scale(0.92);
-        }
-
-        .glass-card {
-            background: rgba(255, 255, 255, 0.93);
-            backdrop-filter: blur(12px);
-            border: 4px solid #FFFFFF;
-        }
-
-        @keyframes pulseSuccess {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.06); }
-        }
-        .animate-success {
-            animation: pulseSuccess 0.4s ease-in-out;
-        }
-
-        @keyframes shakeError {
-            0%, 100% { transform: translateX(0); }
-            20%, 60% { transform: translateX(-8px); }
-            40%, 80% { transform: translateX(8px); }
-        }
-        .animate-shake {
-            animation: shakeError 0.4s ease-in-out;
-        }
-
-        /* Custom Scrollbar for visual groups */
-        ::-webkit-scrollbar {
-            height: 6px;
-            width: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: rgba(0,0,0,0.05);
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #8C52FF;
-            border-radius: 10px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tabuada Divertida Infantil</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#4ECDC4">
+  <style>
+    :root {
+      --primary: #FF6B6B;
+      --secondary: #4ECDC4;
+      --accent: #FFE66D;
+      --bg: #F7F9FC;
+      --text: #2C3E50;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); padding: 20px; text-align: center; }
+    header { margin-bottom: 20px; }
+    h1 { color: var(--primary); font-size: 2.2rem; margin-bottom: 10px; }
+    .nav-btn { background: var(--secondary); color: white; border: none; padding: 10px 18px; margin: 4px; border-radius: 20px; font-weight: bold; cursor: pointer; font-size: 0.95rem; }
+    .restart-btn { background: #FF9F43; }
+    .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    .hidden { display: none; }
+    .btn-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin: 15px 0; }
+    .num-btn { background: var(--accent); border: 2px solid #E6C200; padding: 10px; font-weight: bold; font-size: 1.2rem; border-radius: 10px; cursor: pointer; }
+    .quiz-option { background: var(--bg); border: 2px solid var(--secondary); padding: 15px; font-size: 1.5rem; font-weight: bold; border-radius: 10px; margin: 8px 0; width: 100%; cursor: pointer; }
+    .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; }
+    .modal-content { background: white; padding: 25px; border-radius: 15px; max-width: 400px; width: 90%; }
+    .emoji-group { margin: 5px 0; font-size: 1.2rem; }
+  </style>
 </head>
-<body class="min-h-screen text-gray-800 pb-12 flex flex-col">
+<body>
+  <header>
+    <h1>🧩 Tabuada Divertida 🧩</h1>
+    <button class="nav-btn" onclick="switchMode('learn')">📖 Modo Aprender</button>
+    <button class="nav-btn" onclick="switchMode('quiz')">🎯 Modo Quiz</button>
+    <button class="nav-btn restart-btn" onclick="confirmRestart()">🔄 Recomeçar Jogo</button>
+  </header>
 
-    <!-- Header Navigation -->
-    <header class="w-full max-w-4xl mx-auto p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div class="flex items-center gap-3 bg-white px-6 py-3 rounded-full shadow-lg border-3 border-yellow-300">
-            <span class="text-3xl animate-bounce">🎈</span>
-            <h1 class="text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-brandPurple to-brandPink tracking-wide">
-                Tabuada Divertida!
-            </h1>
-        </div>
+  <main class="container">
+    <!-- Modo Aprender -->
+    <section id="learn-section">
+      <h2>Escolha a Tabuada:</h2>
+      <div class="btn-grid" id="learn-btns"></div>
+      <div id="learn-content" class="hidden">
+        <h3 id="table-title"></h3>
+        <button class="nav-btn" style="background:var(--primary)" onclick="speakCurrentTable()">🔊 Ouvir Tabuada</button>
+        <div id="table-display" style="margin-top:15px; text-align:left;"></div>
+      </div>
+    </section>
 
-        <!-- Audio Toggle & Score Overview -->
-        <div class="flex items-center gap-3">
-            <button onclick="toggleSound()" id="soundToggleBtn" aria-label="Alternar som" class="bg-white p-3.5 rounded-full shadow-md text-gray-700 hover:text-brandPurple text-xl border-2 border-purple-200 btn-pop">
-                <i class="fa-solid fa-volume-high"></i>
-            </button>
-            <div class="bg-yellow-300 text-yellow-950 font-black px-5 py-2.5 rounded-full shadow-md flex items-center gap-2 border-2 border-yellow-400">
-                <span class="text-2xl">⭐</span>
-                <span id="globalPointsDisplay" class="text-xl">0 pts</span>
-            </div>
-        </div>
-    </header>
+    <!-- Modo Quiz -->
+    <section id="quiz-section" class="hidden">
+      <div id="level-selector">
+        <h2>Escolha o Nível:</h2>
+        <button class="quiz-option" onclick="startQuiz('easy')">🌱 Nível Fácil (1, 2, 3, 5, 10)</button>
+        <button class="quiz-option" id="btn-medium" onclick="startQuiz('medium')" disabled>🔥 Nível Médio (Desbloqueie a 100 pts)</button>
+        <button class="quiz-option" id="btn-hard" onclick="startQuiz('hard')" disabled>⚡ Nível Difícil (Desbloqueie a 100 pts no Médio)</button>
+      </div>
+      <div id="quiz-game" class="hidden">
+        <p>Pontos: <span id="score">0</span> | Acertos: <span id="hits">0</span> | Erros: <span id="errors">0</span></p>
+        <h2 id="question-text" style="font-size: 2.5rem; margin: 20px 0;"></h2>
+        <div id="options-container"></div>
+      </div>
+    </section>
+  </main>
 
-    <!-- Main Navigation Tabs -->
-    <nav class="max-w-xl mx-auto w-full px-4 mb-6">
-        <div class="bg-white/80 p-2 rounded-3xl shadow-md border-2 border-white flex gap-2">
-            <button id="tabLearnBtn" onclick="switchMode('learn')" class="flex-1 py-3.5 font-extrabold text-lg sm:text-xl rounded-2xl transition-all duration-200 flex items-center justify-center gap-2 bg-gradient-to-r from-brandBlue to-indigo-600 text-white shadow-md btn-pop">
-                <span>📖</span> Modo Aprender
-            </button>
-            <button id="tabQuizBtn" onclick="switchMode('quiz')" class="flex-1 py-3.5 font-extrabold text-lg sm:text-xl rounded-2xl transition-all duration-200 flex items-center justify-center gap-2 text-gray-600 hover:bg-white/50 btn-pop">
-                <span>🎯</span> Modo Quiz
-            </button>
-        </div>
-    </nav>
-
-    <!-- MAIN CONTENT CONTAINER -->
-    <main class="max-w-4xl mx-auto w-full px-4 flex-1">
-
-        <!-- ==================== MODO APRENDER ==================== -->
-        <section id="learnSection" class="space-y-6">
-            
-            <!-- Quick Number Selection (1 to 10) -->
-            <div class="glass-card p-5 rounded-3xl shadow-xl border-yellow-200">
-                <p class="text-center font-extrabold text-lg sm:text-xl text-purple-800 mb-3">Escolha um número para aprender a tabuada:</p>
-                <div class="grid grid-cols-5 sm:grid-cols-10 gap-2" id="numberButtonsContainer">
-                    <!-- Populated by JS -->
-                </div>
-            </div>
-
-            <!-- Active Table Card Display -->
-            <div class="glass-card p-5 sm:p-8 rounded-3xl shadow-xl border-purple-100 flex flex-col items-center">
-                
-                <div class="flex flex-col sm:flex-row items-center justify-between w-full mb-6 gap-4">
-                    <div class="flex items-center gap-3">
-                        <span id="currentTableEmoji" class="text-4xl sm:text-5xl">🍉</span>
-                        <h2 class="text-2xl sm:text-3xl font-black text-purple-800">Tabuada do <span id="currentTableNum" class="text-brandPink text-4xl">1</span></h2>
-                    </div>
-
-                    <!-- Speech API Voice Button -->
-                    <button onclick="speakTable()" id="speakBtn" class="bg-gradient-to-r from-emerald-400 to-teal-500 hover:from-emerald-500 hover:to-teal-600 text-white font-extrabold px-6 py-3 rounded-2xl shadow-lg flex items-center gap-2.5 btn-pop text-lg">
-                        <i class="fa-solid fa-volume-low text-2xl"></i>
-                        <span>Ouvir Tabuada</span>
-                    </button>
-                </div>
-
-                <!-- Multiplication Items List -->
-                <div id="tableRowsContainer" class="w-full space-y-3">
-                    <!-- Populated by JS -->
-                </div>
-            </div>
-        </section>
-
-        <!-- ==================== MODO QUIZ ==================== -->
-        <section id="quizSection" class="space-y-6 hidden">
-
-            <!-- Level Selector Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <!-- Nível Fácil -->
-                <div id="levelCardEasy" onclick="selectQuizLevel('easy')" class="glass-card p-5 rounded-3xl shadow-md border-3 border-emerald-300 cursor-pointer hover:scale-102 transition-all relative">
-                    <div class="flex justify-between items-start mb-2">
-                        <span class="text-3xl">🌱</span>
-                        <span id="badgeEasy" class="text-xs font-extrabold bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full">Liberado</span>
-                    </div>
-                    <h3 class="font-black text-xl text-emerald-700">Nível Fácil</h3>
-                    <p class="text-xs font-bold text-gray-500 mt-1">Tabuadas: 1, 2, 3, 5 e 10</p>
-                </div>
-
-                <!-- Nível Médio -->
-                <div id="levelCardMedium" onclick="selectQuizLevel('medium')" class="glass-card p-5 rounded-3xl shadow-md border-3 border-yellow-300 cursor-pointer hover:scale-102 transition-all opacity-75 relative">
-                    <div class="flex justify-between items-start mb-2">
-                        <span class="text-3xl">🔥</span>
-                        <span id="badgeMedium" class="text-xs font-extrabold bg-gray-200 text-gray-600 px-3 py-1 rounded-full"><i class="fa-solid fa-lock mr-1"></i>100 pts no Fácil</span>
-                    </div>
-                    <h3 class="font-black text-xl text-yellow-700">Nível Médio</h3>
-                    <p class="text-xs font-bold text-gray-500 mt-1">Tabuadas: 3, 4, 5, 6 e 7</p>
-                </div>
-
-                <!-- Nível Difícil -->
-                <div id="levelCardHard" onclick="selectQuizLevel('hard')" class="glass-card p-5 rounded-3xl shadow-md border-3 border-red-300 cursor-pointer hover:scale-102 transition-all opacity-75 relative">
-                    <div class="flex justify-between items-start mb-2">
-                        <span class="text-3xl">⚡</span>
-                        <span id="badgeHard" class="text-xs font-extrabold bg-gray-200 text-gray-600 px-3 py-1 rounded-full"><i class="fa-solid fa-lock mr-1"></i>100 pts no Médio</span>
-                    </div>
-                    <h3 class="font-black text-xl text-red-700">Nível Difícil</h3>
-                    <p class="text-xs font-bold text-gray-500 mt-1">Tabuadas: 6, 7, 8, 9 e 10</p>
-                </div>
-            </div>
-
-            <!-- Quiz Play Area Card -->
-            <div class="glass-card p-5 sm:p-8 rounded-3xl shadow-xl border-purple-200">
-                
-                <!-- Score Header & Progress -->
-                <div class="flex flex-wrap sm:flex-nowrap items-center justify-between gap-4 border-b-2 border-purple-100 pb-5 mb-6">
-                    <div class="flex items-center gap-4">
-                        <div class="text-center">
-                            <p class="text-xs font-black text-gray-400 uppercase tracking-wider">Acertos</p>
-                            <p id="quizCorrectCount" class="text-2xl font-black text-emerald-500">0</p>
-                        </div>
-                        <div class="text-center">
-                            <p class="text-xs font-black text-gray-400 uppercase tracking-wider">Erros</p>
-                            <p id="quizWrongCount" class="text-2xl font-black text-red-400">0</p>
-                        </div>
-                    </div>
-
-                    <!-- Level Score Progress Bar -->
-                    <div class="w-full sm:w-auto flex-1 max-w-xs mx-0 sm:mx-4 order-last sm:order-none">
-                        <div class="flex justify-between text-xs font-black text-purple-700 mb-1">
-                            <span>Progresso do Nível</span>
-                            <span id="levelProgressText">0 / 100 pts</span>
-                        </div>
-                        <div class="w-full bg-gray-200 h-4 rounded-full overflow-hidden border border-white shadow-inner">
-                            <div id="levelProgressBar" class="bg-gradient-to-r from-yellow-400 to-amber-500 h-full w-0 transition-all duration-300"></div>
-                        </div>
-                    </div>
-
-                    <div class="text-center">
-                        <p class="text-xs font-black text-gray-400 uppercase tracking-wider">Pontos Nível</p>
-                        <p id="quizCurrentScore" class="text-2xl font-black text-yellow-500">0</p>
-                    </div>
-                </div>
-
-                <!-- Question Box -->
-                <div id="questionContainer" class="flex flex-col items-center">
-                    
-                    <div class="bg-gradient-to-br from-purple-600 to-indigo-700 text-white px-8 py-6 rounded-3xl shadow-lg text-center mb-6 w-full max-w-md border-4 border-purple-300">
-                        <span class="text-xs font-black uppercase tracking-widest text-purple-200 mb-1 block">Quanto é?</span>
-                        <h2 id="questionText" class="text-4xl sm:text-5xl font-black tracking-wide">3 × 4 = ?</h2>
-                    </div>
-
-                    <!-- Answer Options (4 Large Buttons) -->
-                    <div id="optionsGrid" class="grid grid-cols-2 gap-4 w-full max-w-md mb-2">
-                        <!-- 4 Options generated by JS -->
-                    </div>
-
-                </div>
-            </div>
-        </section>
-
-    </main>
-
-    <!-- DIDACTIC ERROR MODAL / POPUP -->
-    <div id="errorModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 border-4 border-amber-300 shadow-2xl space-y-5 animate-success">
-            
-            <div class="flex items-center gap-3 text-amber-800 border-b-2 border-amber-100 pb-3">
-                <span class="text-4xl">💡</span>
-                <div>
-                    <h3 class="text-2xl font-black text-amber-900">Ops! Vamos aprender?</h3>
-                    <p class="text-xs font-bold text-amber-700">Aprenda a resposta correta com a soma!</p>
-                </div>
-            </div>
-
-            <!-- Detailed Explanation Text -->
-            <div id="pedagogicalText" class="text-gray-800 text-base sm:text-lg leading-relaxed font-bold bg-amber-50 p-4 rounded-2xl border border-amber-200">
-                <!-- Populated dynamically -->
-            </div>
-
-            <!-- Emojis Visual Groups -->
-            <div class="space-y-2">
-                <p class="text-xs font-black text-purple-700 uppercase tracking-wider">Veja os grupos de emojis:</p>
-                <div id="pedagogicalEmojis" class="bg-purple-50 p-4 rounded-2xl border border-purple-200 flex flex-wrap justify-center gap-3 max-h-48 overflow-y-auto">
-                    <!-- Emoji groups populated dynamically -->
-                </div>
-            </div>
-
-            <button onclick="closeErrorModal()" class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-black py-4 rounded-2xl shadow-xl btn-pop text-xl flex items-center justify-center gap-2">
-                <span>Entendi! Próxima Pergunta</span>
-                <i class="fa-solid fa-arrow-right"></i>
-            </button>
-        </div>
+  <!-- Modal Erro Didático -->
+  <div id="error-modal" class="modal hidden">
+    <div class="modal-content">
+      <h3 style="color:var(--primary)">Ops! Vamos aprender juntos? 💡</h3>
+      <p id="error-explanation" style="margin: 15px 0; text-align:left;"></p>
+      <div id="error-emojis" style="margin-bottom: 15px;"></div>
+      <button class="nav-btn" onclick="closeErrorModal()">Entendi! Próxima 🚀</button>
     </div>
+  </div>
 
-    <!-- JS LOGIC -->
-    <script>
-        // Global Game State
-        const state = {
-            mode: 'learn', // 'learn' | 'quiz'
-            currentTable: 1,
-            soundEnabled: true,
-            
-            // Scores & Level Progression (persisted in localStorage)
-            quiz: {
-                level: 'easy', // 'easy' | 'medium' | 'hard'
-                scores: { easy: 0, medium: 0, hard: 0 },
-                unlocked: { easy: true, medium: false, hard: false },
-                correct: 0,
-                wrong: 0,
-                currentQuestion: null,
-                answered: false
-            }
-        };
+  <script>
+    let currentTableNum = 1;
+    let quizState = { level: 'easy', score: 0, hits: 0, errors: 0, currentQ: null };
+    let progress = JSON.parse(localStorage.getItem('tabuada_progress')) || { scoreEasy: 0, scoreMedium: 0 };
 
-        // Emojis for Visual Representation
-        const EMOJIS = ['🍉', '⭐️', '🎈', '🐸', '🚗', '🍓', '🐝', '🍪', '🐱', '⚽️'];
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js');
+    }
 
-        // Levels Config
-        const LEVEL_CONFIG = {
-            easy: { name: 'Fácil', tables: [1, 2, 3, 5, 10], nextUnlock: 'medium' },
-            medium: { name: 'Médio', tables: [3, 4, 5, 6, 7], nextUnlock: 'hard' },
-            hard: { name: 'Difícil', tables: [6, 7, 8, 9, 10], nextUnlock: null }
-        };
+    function init() {
+      const grid = document.getElementById('learn-btns');
+      grid.innerHTML = '';
+      for (let i = 1; i <= 10; i++) {
+        const btn = document.createElement('button');
+        btn.className = 'num-btn';
+        btn.innerText = i;
+        btn.onclick = () => loadLearnTable(i);
+        grid.appendChild(btn);
+      }
+      updateQuizButtons();
+    }
 
-        // Web Audio API Effects Generator
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function updateQuizButtons() {
+      const btnMedium = document.getElementById('btn-medium');
+      const btnHard = document.getElementById('btn-hard');
 
-        function playSound(type) {
-            if (!state.soundEnabled) return;
-            try {
-                if (audioCtx.state === 'suspended') {
-                    audioCtx.resume();
-                }
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
+      if (progress.scoreEasy >= 100) {
+        btnMedium.disabled = false;
+        btnMedium.innerText = '🔥 Nível Médio (3, 4, 5, 6, 7)';
+      } else {
+        btnMedium.disabled = true;
+        btnMedium.innerText = '🔥 Nível Médio (Desbloqueie a 100 pts)';
+      }
 
-                if (type === 'correct') {
-                    // Cheerful arpeggio
-                    osc.type = 'triangle';
-                    osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
-                    osc.frequency.exponentialRampToValueAtTime(659.25, audioCtx.currentTime + 0.12); // E5
-                    osc.frequency.exponentialRampToValueAtTime(783.99, audioCtx.currentTime + 0.24); // G5
-                    gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
-                    osc.start();
-                    osc.stop(audioCtx.currentTime + 0.35);
-                } else if (type === 'wrong') {
-                    // Soft low buzz
-                    osc.type = 'sawtooth';
-                    osc.frequency.setValueAtTime(220, audioCtx.currentTime);
-                    osc.frequency.exponentialRampToValueAtTime(140, audioCtx.currentTime + 0.25);
-                    gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
-                    osc.start();
-                    osc.stop(audioCtx.currentTime + 0.3);
-                } else if (type === 'pop') {
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(450, audioCtx.currentTime);
-                    osc.frequency.exponentialRampToValueAtTime(850, audioCtx.currentTime + 0.08);
-                    gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
-                    osc.start();
-                    osc.stop(audioCtx.currentTime + 0.08);
-                } else if (type === 'unlock') {
-                    // Level unlock fanfare
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(440, audioCtx.currentTime);
-                    osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.4);
-                    gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
-                    osc.start();
-                    osc.stop(audioCtx.currentTime + 0.5);
-                }
-            } catch (e) {
-                console.log('Audio playback notice:', e);
-            }
+      if (progress.scoreMedium >= 100) {
+        btnHard.disabled = false;
+        btnHard.innerText = '⚡ Nível Difícil (6, 7, 8, 9, 10)';
+      } else {
+        btnHard.disabled = true;
+        btnHard.innerText = '⚡ Nível Difícil (Desbloqueie a 100 pts no Médio)';
+      }
+    }
+
+    function loadLearnTable(num) {
+      currentTableNum = num;
+      document.getElementById('learn-content').classList.remove('hidden');
+      document.getElementById('table-title').innerText = `Tabuada do ${num}`;
+      const display = document.getElementById('table-display');
+      display.innerHTML = '';
+      
+      const emojis = ['⭐️', '🍎', '🎈', '🐱', '🐶', '⚽️', '🚗', '🍓', '🚀', '👑'];
+      const icon = emojis[num - 1];
+
+      for (let i = 1; i <= 10; i++) {
+        const row = document.createElement('div');
+        row.style.margin = '8px 0';
+        row.innerHTML = `<strong>${num} × ${i} = ${num * i}</strong> <span class="emoji-group">${icon.repeat(i)}</span>`;
+        display.appendChild(row);
+      }
+    }
+
+    function speakCurrentTable() {
+      if ('speechSynthesis' in window) {
+        let text = `Tabuada do ${currentTableNum}. `;
+        for (let i = 1; i <= 10; i++) {
+          text += `${currentTableNum} vezes ${i} é igual a ${currentTableNum * i}. `;
         }
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'pt-BR';
+        window.speechSynthesis.speak(utterance);
+      }
+    }
 
-        function toggleSound() {
-            state.soundEnabled = !state.soundEnabled;
-            const btn = document.getElementById('soundToggleBtn');
-            btn.innerHTML = state.soundEnabled ? '<i class="fa-solid fa-volume-high"></i>' : '<i class="fa-solid fa-volume-xmark text-red-400"></i>';
+    function switchMode(mode) {
+      document.getElementById('learn-section').classList.toggle('hidden', mode !== 'learn');
+      document.getElementById('quiz-section').classList.toggle('hidden', mode !== 'quiz');
+    }
+
+    function startQuiz(level) {
+      quizState = { level, score: 0, hits: 0, errors: 0, currentQ: null };
+      document.getElementById('level-selector').classList.add('hidden');
+      document.getElementById('quiz-game').classList.remove('hidden');
+      updateStats();
+      nextQuestion();
+    }
+
+    function nextQuestion() {
+      const levels = {
+        easy: [1, 2, 3, 5, 10],
+        medium: [3, 4, 5, 6, 7],
+        hard: [6, 7, 8, 9, 10]
+      };
+      const tables = levels[quizState.level];
+      const n1 = tables[Math.floor(Math.random() * tables.length)];
+      const n2 = Math.floor(Math.random() * 10) + 1;
+      const correct = n1 * n2;
+
+      quizState.currentQ = { n1, n2, correct };
+
+      document.getElementById('question-text').innerText = `${n1} × ${n2} = ?`;
+      const optionsContainer = document.getElementById('options-container');
+      optionsContainer.innerHTML = '';
+
+      let options = [correct];
+      while (options.length < 4) {
+        let wrong = (Math.floor(Math.random() * 10) + 1) * (Math.floor(Math.random() * 10) + 1);
+        if (!options.includes(wrong)) options.push(wrong);
+      }
+      options.sort(() => Math.random() - 0.5);
+
+      options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'quiz-option';
+        btn.innerText = opt;
+        btn.onclick = () => checkAnswer(opt);
+        optionsContainer.appendChild(btn);
+      });
+    }
+
+    function checkAnswer(selected) {
+      const { n1, n2, correct } = quizState.currentQ;
+      if (selected === correct) {
+        quizState.score += 10;
+        quizState.hits++;
+        if (quizState.level === 'easy' && quizState.score > progress.scoreEasy) progress.scoreEasy = quizState.score;
+        if (quizState.level === 'medium' && quizState.score > progress.scoreMedium) progress.scoreMedium = quizState.score;
+        localStorage.setItem('tabuada_progress', JSON.stringify(progress));
+        updateQuizButtons();
+        updateStats();
+        nextQuestion();
+      } else {
+        quizState.errors++;
+        updateStats();
+        showErrorExplanation(n1, n2, correct);
+      }
+    }
+
+    function updateStats() {
+      document.getElementById('score').innerText = quizState.score;
+      document.getElementById('hits').innerText = quizState.hits;
+      document.getElementById('errors').innerText = quizState.errors;
+    }
+
+    function showErrorExplanation(n1, n2, correct) {
+      const modal = document.getElementById('error-modal');
+      const text = document.getElementById('error-explanation');
+      const emojisDiv = document.getElementById('error-emojis');
+
+      let sumStr = Array(n2).fill(n1).join(' + ');
+      text.innerHTML = `A resposta correta para <strong>${n1} × ${n2}</strong> é <strong>${correct}</strong>.<br><br>` +
+                       `Multiplicar é o mesmo que somar várias vezes:<br>` +
+                       `<strong>${sumStr} = ${correct}</strong>`;
+
+      emojisDiv.innerHTML = '';
+      for (let i = 0; i < n2; i++) {
+        const group = document.createElement('div');
+        group.className = 'emoji-group';
+        group.innerText = `Grupo ${i + 1}: ` + '🌟'.repeat(n1);
+        emojisDiv.appendChild(group);
+      }
+
+      modal.classList.remove('hidden');
+    }
+
+    function closeErrorModal() {
+      document.getElementById('error-modal').classList.add('hidden');
+      nextQuestion();
+    }
+
+    function confirmRestart() {
+      const resetAll = confirm("Queres recomeçar o jogo?\n\nClique em 'OK' para recomeçar a partida atual ou voltar ao menu.\n(Dica: se quiseres APAGAR todo o progresso e bloquear os níveis novamente, podes fazer isso a seguir).");
+      
+      if (resetAll) {
+        const clearStorage = confirm("Queres também APAGAR todos os pontos acumulados e bloquear os níveis médios/difíceis?");
+        if (clearStorage) {
+          localStorage.removeItem('tabuada_progress');
+          progress = { scoreEasy: 0, scoreMedium: 0 };
+          updateQuizButtons();
         }
+        
+        quizState = { level: 'easy', score: 0, hits: 0, errors: 0, currentQ: null };
+        document.getElementById('quiz-game').classList.add('hidden');
+        document.getElementById('level-selector').classList.remove('hidden');
+        switchMode('quiz');
+      }
+    }
 
-        // --- LOCAL STORAGE PERSISTENCE ---
-        function loadState() {
-            const saved = localStorage.getItem('tabuada_divertida_infantil_data');
-            if (saved) {
-                try {
-                    const parsed = JSON.parse(saved);
-                    state.quiz.scores = parsed.scores || state.quiz.scores;
-                    state.quiz.unlocked = parsed.unlocked || state.quiz.unlocked;
-                } catch(e) {}
-            }
-            updateGlobalScoreDisplay();
-            updateLevelBadges();
-        }
-
-        function saveState() {
-            localStorage.setItem('tabuada_divertida_infantil_data', JSON.stringify({
-                scores: state.quiz.scores,
-                unlocked: state.quiz.unlocked
-            }));
-            updateGlobalScoreDisplay();
-        }
-
-        function updateGlobalScoreDisplay() {
-            const total = Object.values(state.quiz.scores).reduce((a, b) => a + b, 0);
-            document.getElementById('globalPointsDisplay').innerText = `${total} pts`;
-        }
-
-        // --- NAVIGATION MODES ---
-        function switchMode(mode) {
-            playSound('pop');
-            state.mode = mode;
-            const learnBtn = document.getElementById('tabLearnBtn');
-            const quizBtn = document.getElementById('tabQuizBtn');
-            const learnSec = document.getElementById('learnSection');
-            const quizSec = document.getElementById('quizSection');
-
-            if (mode === 'learn') {
-                learnBtn.className = 'flex-1 py-3.5 font-extrabold text-lg sm:text-xl rounded-2xl transition-all duration-200 flex items-center justify-center gap-2 bg-gradient-to-r from-brandBlue to-indigo-600 text-white shadow-md btn-pop';
-                quizBtn.className = 'flex-1 py-3.5 font-extrabold text-lg sm:text-xl rounded-2xl transition-all duration-200 flex items-center justify-center gap-2 text-gray-600 hover:bg-white/50 btn-pop';
-                learnSec.classList.remove('hidden');
-                quizSec.classList.add('hidden');
-            } else {
-                quizBtn.className = 'flex-1 py-3.5 font-extrabold text-lg sm:text-xl rounded-2xl transition-all duration-200 flex items-center justify-center gap-2 bg-gradient-to-r from-brandPink to-purple-600 text-white shadow-md btn-pop';
-                learnBtn.className = 'flex-1 py-3.5 font-extrabold text-lg sm:text-xl rounded-2xl transition-all duration-200 flex items-center justify-center gap-2 text-gray-600 hover:bg-white/50 btn-pop';
-                quizSec.classList.remove('hidden');
-                learnSec.classList.add('hidden');
-                if (!state.quiz.currentQuestion) {
-                    generateQuizQuestion();
-                }
-            }
-        }
-
-        // ================= MODO APRENDER =================
-        function initLearnMode() {
-            const btnContainer = document.getElementById('numberButtonsContainer');
-            btnContainer.innerHTML = '';
-
-            for (let i = 1; i <= 10; i++) {
-                const btn = document.createElement('button');
-                btn.id = `btnNumTable_${i}`;
-                btn.className = `py-3 rounded-2xl font-black text-xl transition-all btn-pop ${i === state.currentTable ? 'bg-brandPurple text-white shadow-lg scale-105 ring-4 ring-purple-200' : 'bg-purple-50 text-purple-800 hover:bg-purple-100'}`;
-                btn.innerText = i;
-                btn.onclick = () => selectLearnTable(i);
-                btnContainer.appendChild(btn);
-            }
-
-            renderLearnTable();
-        }
-
-        function selectLearnTable(num) {
-            playSound('pop');
-            state.currentTable = num;
-            
-            for (let i = 1; i <= 10; i++) {
-                const btn = document.getElementById(`btnNumTable_${i}`);
-                if (btn) {
-                    if (i === num) {
-                        btn.className = 'py-3 rounded-2xl font-black text-xl transition-all btn-pop bg-brandPurple text-white shadow-lg scale-105 ring-4 ring-purple-200';
-                    } else {
-                        btn.className = 'py-3 rounded-2xl font-black text-xl transition-all btn-pop bg-purple-50 text-purple-800 hover:bg-purple-100';
-                    }
-                }
-            }
-
-            renderLearnTable();
-        }
-
-        function renderLearnTable() {
-            const num = state.currentTable;
-            const emoji = EMOJIS[num - 1];
-            
-            document.getElementById('currentTableNum').innerText = num;
-            document.getElementById('currentTableEmoji').innerText = emoji;
-
-            const container = document.getElementById('tableRowsContainer');
-            container.innerHTML = '';
-
-            for (let i = 1; i <= 10; i++) {
-                const result = num * i;
-                const row = document.createElement('div');
-                row.className = 'bg-white p-3.5 sm:p-4 rounded-2xl border-2 border-purple-50 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm hover:border-purple-200 transition-all';
-                
-                // Emoji Groups Representation (e.g., 3 x 4 -> 3 groups of 4 emojis)
-                let emojiGroupsHtml = '';
-                const groupCount = num;
-                const itemsPerGroup = i;
-
-                for (let g = 0; g < groupCount; g++) {
-                    emojiGroupsHtml += `<div class="flex items-center bg-purple-50 px-2 py-1 rounded-xl border border-purple-100">`;
-                    for (let item = 0; item < itemsPerGroup; item++) {
-                        emojiGroupsHtml += `<span class="text-sm sm:text-base">${emoji}</span>`;
-                    }
-                    emojiGroupsHtml += `</div>`;
-                    if (g < groupCount - 1) {
-                        emojiGroupsHtml += `<span class="text-purple-300 font-bold text-xs">+</span>`;
-                    }
-                }
-
-                row.innerHTML = `
-                    <div class="flex items-center gap-3 w-full sm:w-auto">
-                        <span class="bg-yellow-300 text-yellow-950 font-black text-sm px-3 py-1 rounded-xl">#${i}</span>
-                        <span class="font-extrabold text-xl text-gray-700">${num} × ${i} = <span class="text-brandPurple font-black text-2xl">${result}</span></span>
-                    </div>
-
-                    <div class="flex flex-wrap gap-1.5 justify-center sm:justify-end max-w-full overflow-x-auto py-1">
-                        ${emojiGroupsHtml}
-                    </div>
-                `;
-
-                container.appendChild(row);
-            }
-        }
-
-        // Web Speech API Text-to-Speech (pt-BR)
-        function speakTable() {
-            if (!('speechSynthesis' in window)) {
-                alert('Seu navegador não suporta a síntese de voz.');
-                return;
-            }
-
-            window.speechSynthesis.cancel(); // Reset any existing speech
-
-            const num = state.currentTable;
-            let speechText = `Tabuada do ${num}. `;
-            for (let i = 1; i <= 10; i++) {
-                speechText += `${num} vezes ${i} é igual a ${num * i}. `;
-            }
-
-            const utterance = new SpeechSynthesisUtterance(speechText);
-            utterance.lang = 'pt-BR';
-            utterance.rate = 0.88; // Slightly slower tempo for kids
-            utterance.pitch = 1.1; // Friendly tone
-
-            window.speechSynthesis.speak(utterance);
-        }
-
-        // ================= MODO QUIZ =================
-        function updateLevelBadges() {
-            // Easy Level Badge
-            document.getElementById('badgeEasy').innerText = 'Liberado';
-            
-            // Medium Level Badge
-            const medLocked = !state.quiz.unlocked.medium;
-            const medBadge = document.getElementById('badgeMedium');
-            const medCard = document.getElementById('levelCardMedium');
-            if (medLocked) {
-                medBadge.innerHTML = `<i class="fa-solid fa-lock mr-1"></i>100 pts no Fácil`;
-                medBadge.className = 'text-xs font-extrabold bg-gray-200 text-gray-600 px-3 py-1 rounded-full';
-                medCard.classList.add('opacity-75');
-            } else {
-                medBadge.innerText = 'Desbloqueado!';
-                medBadge.className = 'text-xs font-extrabold bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full';
-                medCard.classList.remove('opacity-75');
-            }
-
-            // Hard Level Badge
-            const hardLocked = !state.quiz.unlocked.hard;
-            const hardBadge = document.getElementById('badgeHard');
-            const hardCard = document.getElementById('levelCardHard');
-            if (hardLocked) {
-                hardBadge.innerHTML = `<i class="fa-solid fa-lock mr-1"></i>100 pts no Médio`;
-                hardBadge.className = 'text-xs font-extrabold bg-gray-200 text-gray-600 px-3 py-1 rounded-full';
-                hardCard.classList.add('opacity-75');
-            } else {
-                hardBadge.innerText = 'Desbloqueado!';
-                hardBadge.className = 'text-xs font-extrabold bg-red-100 text-red-800 px-3 py-1 rounded-full';
-                hardCard.classList.remove('opacity-75');
-            }
-
-            // Active Level Border Highlight
-            const currentLevel = state.quiz.level;
-            ['easy', 'medium', 'hard'].forEach(lvl => {
-                const card = document.getElementById(`levelCard${lvl.charAt(0).toUpperCase() + lvl.slice(1)}`);
-                if (lvl === currentLevel) {
-                    card.classList.add('ring-4', 'ring-purple-500', 'scale-102');
-                } else {
-                    card.classList.remove('ring-4', 'ring-purple-500', 'scale-102');
-                }
-            });
-        }
-
-        function selectQuizLevel(level) {
-            if (!state.quiz.unlocked[level]) {
-                playSound('wrong');
-                alert(`🔒 Nível Bloqueado! Obtenha 100 pontos no nível anterior para desbloquear!`);
-                return;
-            }
-
-            playSound('pop');
-            state.quiz.level = level;
-            updateLevelBadges();
-            updateQuizHeader();
-            generateQuizQuestion();
-        }
-
-        function updateQuizHeader() {
-            const level = state.quiz.level;
-            const score = state.quiz.scores[level];
-
-            document.getElementById('quizCorrectCount').innerText = state.quiz.correct;
-            document.getElementById('quizWrongCount').innerText = state.quiz.wrong;
-            document.getElementById('quizCurrentScore').innerText = score;
-
-            // Progress bar toward 100 pts
-            const target = 100;
-            const pct = Math.min(100, Math.round((score / target) * 100));
-            document.getElementById('levelProgressBar').style.width = `${pct}%`;
-            document.getElementById('levelProgressText').innerText = `${score} / 100 pts`;
-        }
-
-        function generateQuizQuestion() {
-            state.quiz.answered = false;
-
-            const allowedTables = LEVEL_CONFIG[state.quiz.level].tables;
-            const num1 = allowedTables[Math.floor(Math.random() * allowedTables.length)];
-            const num2 = Math.floor(Math.random() * 10) + 1; // 1 to 10
-            const correctAnswer = num1 * num2;
-
-            state.quiz.currentQuestion = { num1, num2, correctAnswer };
-
-            document.getElementById('questionText').innerText = `${num1} × ${num2} = ?`;
-
-            // Options Choice Setup (1 correct + 3 smart distractors)
-            const options = new Set();
-            options.add(correctAnswer);
-
-            while (options.size < 4) {
-                const offset = (Math.floor(Math.random() * 5) + 1) * (Math.random() < 0.5 ? 1 : -1);
-                const wrongOpt = correctAnswer + offset;
-                if (wrongOpt > 0 && wrongOpt !== correctAnswer) {
-                    options.add(wrongOpt);
-                }
-            }
-
-            const shuffledOptions = Array.from(options).sort(() => Math.random() - 0.5);
-
-            const grid = document.getElementById('optionsGrid');
-            grid.innerHTML = '';
-
-            shuffledOptions.forEach(opt => {
-                const btn = document.createElement('button');
-                btn.className = 'bg-white hover:bg-purple-50 text-purple-800 font-black text-2xl py-4 rounded-2xl border-3 border-purple-200 shadow-md transition-all btn-pop text-center';
-                btn.innerText = opt;
-                btn.onclick = () => checkAnswer(opt, btn);
-                grid.appendChild(btn);
-            });
-        }
-
-        function checkAnswer(selectedAnswer, clickedBtn) {
-            if (state.quiz.answered) return;
-            state.quiz.answered = true;
-
-            const q = state.quiz.currentQuestion;
-            const isCorrect = selectedAnswer === q.correctAnswer;
-
-            if (isCorrect) {
-                playSound('correct');
-                clickedBtn.classList.remove('bg-white', 'text-purple-800', 'border-purple-200');
-                clickedBtn.classList.add('bg-emerald-500', 'text-white', 'border-emerald-600', 'animate-success');
-
-                state.quiz.correct++;
-                
-                // Calculate level score additions
-                const ptsToAdd = state.quiz.level === 'easy' ? 10 : (state.quiz.level === 'medium' ? 15 : 20);
-                const prevScore = state.quiz.scores[state.quiz.level];
-                state.quiz.scores[state.quiz.level] += ptsToAdd;
-                const newScore = state.quiz.scores[state.quiz.level];
-
-                // Level unlock logic check
-                if (prevScore < 100 && newScore >= 100) {
-                    const nextLvl = LEVEL_CONFIG[state.quiz.level].nextUnlock;
-                    if (nextLvl && !state.quiz.unlocked[nextLvl]) {
-                        state.quiz.unlocked[nextLvl] = true;
-                        playSound('unlock');
-                        confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
-                        setTimeout(() => {
-                            alert(`🎉 PARABÉNS! Você atingiu 100 pontos e DESBLOQUEOU o Nível ${LEVEL_CONFIG[nextLvl].name}!`);
-                        }, 300);
-                    } else {
-                        confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
-                    }
-                }
-
-                saveState();
-                updateQuizHeader();
-
-                // Next question auto load
-                setTimeout(() => {
-                    generateQuizQuestion();
-                }, 1100);
-
-            } else {
-                // WRONG ANSWER - Trigger Didactic Error Modal
-                playSound('wrong');
-                clickedBtn.classList.remove('bg-white', 'text-purple-800', 'border-purple-200');
-                clickedBtn.classList.add('bg-red-500', 'text-white', 'border-red-600', 'animate-shake');
-
-                state.quiz.wrong++;
-                updateQuizHeader();
-
-                // Highlight correct button
-                const gridBtns = document.getElementById('optionsGrid').children;
-                for (let b of gridBtns) {
-                    if (parseInt(b.innerText) === q.correctAnswer) {
-                        b.classList.remove('bg-white', 'text-purple-800');
-                        b.classList.add('bg-emerald-100', 'text-emerald-900', 'border-emerald-400');
-                    }
-                }
-
-                // Show Didactic Error Modal
-                setTimeout(() => {
-                    showErrorModal(q);
-                }, 400);
-            }
-        }
-
-        // Didactic Error Modal Logic
-        function showErrorModal(q) {
-            const textElem = document.getElementById('pedagogicalText');
-            const emojiElem = document.getElementById('pedagogicalEmojis');
-
-            // Repeated Addition explanation: 3 x 4 -> 4 + 4 + 4 = 12
-            const additionTerms = Array(q.num1).fill(q.num2).join(' + ');
-            
-            textElem.innerHTML = `
-                <p class="mb-2">A resposta correta para <span class="text-purple-700 font-black">${q.num1} × ${q.num2}</span> é <span class="text-emerald-600 font-black">${q.correctAnswer}</span>!</p>
-                <p class="text-sm font-semibold text-gray-700 mb-2">Lembre-se: multiplicar é o mesmo que somar o número <strong>${q.num2}</strong> exatamente <strong>${q.num1} vezes</strong>:</p>
-                <div class="text-center font-black text-xl text-purple-800 bg-white py-2 px-4 rounded-xl border border-amber-300 shadow-sm">
-                    ${additionTerms} = ${q.correctAnswer}
-                </div>
-            `;
-
-            // Emoji groups visualization
-            const emojiSymbol = EMOJIS[q.num1 - 1] || '⭐️';
-            let emojiGroupsHtml = '';
-            for (let g = 0; g < q.num1; g++) {
-                emojiGroupsHtml += `<div class="bg-white px-3 py-1.5 rounded-xl border border-purple-200 shadow-sm flex items-center gap-1">`;
-                for (let i = 0; i < q.num2; i++) {
-                    emojiGroupsHtml += `<span class="text-base sm:text-lg">${emojiSymbol}</span>`;
-                }
-                emojiGroupsHtml += `</div>`;
-                if (g < q.num1 - 1) {
-                    emojiGroupsHtml += `<span class="text-purple-400 font-black text-sm self-center">+</span>`;
-                }
-            }
-
-            emojiElem.innerHTML = emojiGroupsHtml;
-            document.getElementById('errorModal').classList.remove('hidden');
-        }
-
-        function closeErrorModal() {
-            playSound('pop');
-            document.getElementById('errorModal').classList.add('hidden');
-            generateQuizQuestion();
-        }
-
-        // Window Init
-        window.onload = function() {
-            loadState();
-            initLearnMode();
-            updateQuizHeader();
-        };
-    </script>
+    init();
+  </script>
 </body>
 </html>
