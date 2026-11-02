@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabuada Divertida Infantil 🎈</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Fredoka & Quicksand -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome para ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti para comemorações -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'kids-yellow': '#FFDE59',
+                        'kids-pink': '#FF66C4',
+                        'kids-blue': '#5CE1E6',
+                        'kids-green': '#7ED957',
+                        'kids-purple': '#8C52FF',
+                        'kids-orange': '#FF914D',
+                    },
+                    fontFamily: {
+                        fredoka: ['Fredoka', 'sans-serif'],
+                        quicksand: ['Quicksand', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'fun': '0 8px 0px 0px rgba(0,0,0,0.15)',
+                        'fun-lg': '0 12px 0px 0px rgba(0,0,0,0.15)',
+                        'fun-active': '0 2px 0px 0px rgba(0,0,0,0.15)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Fredoka', sans-serif;
+            background-color: #F0F9FF;
+            background-image: radial-gradient(#E0F2FE 2px, transparent 2px);
+            background-size: 24px 24px;
+            user-select: none;
+        }
+
+        .btn-bounce {
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+        }
+        .btn-bounce:hover {
+            transform: translateY(-3px);
+        }
+        .btn-bounce:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0px 0px rgba(0,0,0,0.15) !important;
+        }
+
+        .floating {
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .pulse-star {
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+
+        /* Custom scrollbar for learn tab */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #E0F2FE;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #38BDF8;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #0284C7;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-800 flex flex-col justify-between p-2 md:p-6">
+
+    <!-- CABEÇALHO DA APLICAÇÃO -->
+    <header class="max-w-4xl mx-auto w-full bg-white rounded-3xl p-4 md:p-6 shadow-fun border-4 border-kids-blue mb-4 flex flex-wrap items-center justify-between gap-4 relative overflow-hidden">
+        <div class="flex items-center gap-3">
+            <div class="w-14 h-14 md:w-16 md:h-16 bg-kids-yellow rounded-2xl flex items-center justify-center text-3xl md:text-4xl shadow-md transform -rotate-6 floating">
+                🎨
+            </div>
+            <div>
+                <h1 class="text-2xl md:text-3xl font-extrabold text-slate-800 tracking-wide">
+                    Tabuada <span class="text-kids-pink">Divertida</span> 🎈
+                </h1>
+                <p class="text-xs md:text-sm text-slate-500 font-bold">Aprenda matemática brincando!</p>
+            </div>
+        </div>
+
+        <!-- Botão Zera Jogo e Pontuação Geral -->
+        <div class="flex items-center gap-3 ml-auto">
+            <button onclick="confirmReset()" title="Zerar Todo o Progresso" class="btn-bounce bg-rose-400 hover:bg-rose-500 text-white font-bold py-2 px-4 rounded-2xl shadow-fun text-sm flex items-center gap-2 border-2 border-rose-600">
+                <i class="fa-solid fa-rotate-left"></i>
+                <span class="hidden sm:inline">Zerar Jogo</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="max-w-4xl mx-auto w-full flex-grow flex flex-col gap-4">
+
+        <!-- NAV BAR: OPERAÇÕES + MODO -->
+        <div class="bg-white rounded-3xl p-3 md:p-4 shadow-fun border-4 border-kids-purple flex flex-col md:flex-row gap-4 justify-between items-center">
+            
+            <!-- Seleção de Operação -->
+            <div class="flex flex-wrap justify-center gap-2 w-full md:w-auto">
+                <button onclick="setOperation('+')" id="op-add" class="op-btn btn-bounce flex-1 md:flex-none py-2 px-4 rounded-2xl font-black text-xl md:text-2xl border-2 transition-all flex items-center justify-center gap-1 bg-kids-pink text-white border-pink-600 shadow-fun">
+                    ➕ <span class="text-sm md:text-base hidden sm:inline">Adição</span>
+                </button>
+                <button onclick="setOperation('-')" id="op-sub" class="op-btn btn-bounce flex-1 md:flex-none py-2 px-4 rounded-2xl font-black text-xl md:text-2xl border-2 transition-all flex items-center justify-center gap-1 bg-slate-100 text-slate-600 border-slate-300">
+                    ➖ <span class="text-sm md:text-base hidden sm:inline">Subtração</span>
+                </button>
+                <button onclick="setOperation('x')" id="op-mul" class="op-btn btn-bounce flex-1 md:flex-none py-2 px-4 rounded-2xl font-black text-xl md:text-2xl border-2 transition-all flex items-center justify-center gap-1 bg-slate-100 text-slate-600 border-slate-300">
+                    ✖️ <span class="text-sm md:text-base hidden sm:inline">Multiplicação</span>
+                </button>
+                <button onclick="setOperation('/')" id="op-div" class="op-btn btn-bounce flex-1 md:flex-none py-2 px-4 rounded-2xl font-black text-xl md:text-2xl border-2 transition-all flex items-center justify-center gap-1 bg-slate-100 text-slate-600 border-slate-300">
+                    ➗ <span class="text-sm md:text-base hidden sm:inline">Divisão</span>
+                </button>
+            </div>
+
+            <!-- Seleção de Modo (Aprender vs Quiz) -->
+            <div class="bg-slate-100 p-1.5 rounded-2xl flex gap-1 w-full md:w-auto border-2 border-slate-200">
+                <button onclick="switchMode('learn')" id="tab-learn" class="btn-bounce flex-1 md:flex-none py-2 px-5 rounded-xl font-bold text-base transition-all bg-white text-kids-purple shadow-sm border-2 border-kids-purple">
+                    📖 Aprender
+                </button>
+                <button onclick="switchMode('quiz')" id="tab-quiz" class="btn-bounce flex-1 md:flex-none py-2 px-5 rounded-xl font-bold text-base transition-all text-slate-500 hover:text-slate-800">
+                    🎯 Quiz Níveis
+                </button>
+            </div>
+        </div>
+
+        <!-- MODO APRENDER -->
+        <section id="section-learn" class="bg-white rounded-3xl p-4 md:p-6 shadow-fun border-4 border-kids-green flex flex-col gap-6">
+            
+            <!-- Seleção de Número da Tabuada (1 a 10) -->
+            <div class="flex flex-col gap-2">
+                <div class="flex items-center justify-between">
+                    <span class="text-slate-600 font-bold text-sm md:text-base">Escolha o número da tabuada:</span>
+                    <button onclick="speakFullTable()" class="btn-bounce bg-kids-yellow hover:bg-yellow-400 text-slate-800 font-extrabold py-2 px-4 rounded-2xl text-sm border-2 border-yellow-500 shadow-fun flex items-center gap-2">
+                        🔊 Ouvir Tabuada Completa
+                    </button>
+                </div>
+                <div class="grid grid-cols-5 sm:grid-cols-10 gap-2">
+                    <!-- Botões gerados via JS (1 a 10) -->
+                    <script>
+                        for(let i = 1; i <= 10; i++) {
+                            document.write(`
+                                <button onclick="selectLearnNumber(${i})" id="btn-num-${i}" class="num-btn btn-bounce py-2 rounded-2xl font-black text-xl border-2 transition-all ${i === 1 ? 'bg-kids-green text-white border-green-600 shadow-fun' : 'bg-slate-100 text-slate-700 border-slate-300'}">
+                                    ${i}
+                                </button>
+                            `);
+                        }
+                    </script>
+                </div>
+            </div>
+
+            <!-- Título da Tabuada Selecionada -->
+            <div class="bg-emerald-50 border-2 border-emerald-200 p-3 rounded-2xl flex items-center justify-between">
+                <h2 id="learn-title" class="text-xl md:text-2xl font-black text-emerald-800">
+                    Tabuada da Adição do 1 ➕
+                </h2>
+                <span class="text-xs md:text-sm bg-emerald-200 text-emerald-800 px-3 py-1 rounded-full font-bold">
+                    Toque no 🔊 para ouvir cada linha!
+                </span>
+            </div>
+
+            <!-- Lista de Operações do Modo Aprender -->
+            <div id="learn-list" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Conteúdo renderizado pelo JS -->
+            </div>
+        </section>
+
+        <!-- MODO QUIZ -->
+        <section id="section-quiz" class="hidden bg-white rounded-3xl p-4 md:p-6 shadow-fun border-4 border-kids-orange flex flex-col gap-6">
+            
+            <!-- Barra de Status / Progresso de Níveis -->
+            <div class="bg-orange-50 border-2 border-orange-200 rounded-2xl p-4 flex flex-col gap-3">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm font-bold text-slate-600">Nível Selecionado:</span>
+                        <div id="level-badge" class="font-extrabold text-sm md:text-base px-3 py-1 rounded-xl bg-green-100 text-green-700 border border-green-300">
+                            Fácil 🌱
+                        </div>
+                    </div>
+                    
+                    <!-- Placares -->
+                    <div class="flex items-center gap-3 bg-white px-3 py-1.5 rounded-xl border border-orange-200 shadow-sm text-sm font-bold">
+                        <span class="text-emerald-600">✅ <span id="score-correct">0</span></span>
+                        <span class="text-rose-500">❌ <span id="score-wrong">0</span></span>
+                        <span class="text-amber-500">🔥 Combo: <span id="score-combo">0</span></span>
+                        <span class="text-kids-purple text-base font-black border-l pl-3 border-slate-200">⭐ <span id="score-points">0</span> pts</span>
+                    </div>
+                </div>
+
+                <!-- Botões de Troca de Nível -->
+                <div class="grid grid-cols-3 gap-2 pt-2 border-t border-orange-200/60">
+                    <button onclick="setLevel(1)" id="btn-lvl-1" class="btn-bounce py-2 px-3 rounded-xl font-bold text-xs md:text-sm flex flex-col sm:flex-row items-center justify-center gap-1 bg-kids-green text-white border-2 border-green-600 shadow-sm">
+                        <span>🌱 Fácil</span>
+                        <span class="text-[10px] font-normal opacity-90">(Tabuadas 1,2,3,5,10)</span>
+                    </button>
+                    <button onclick="setLevel(2)" id="btn-lvl-2" class="btn-bounce py-2 px-3 rounded-xl font-bold text-xs md:text-sm flex flex-col sm:flex-row items-center justify-center gap-1 bg-slate-200 text-slate-500 border-2 border-slate-300 opacity-80">
+                        <span>🔥 Médio <i id="lock-lvl-2" class="fa-solid fa-lock text-xs"></i></span>
+                        <span class="text-[10px] font-normal"> (Req. 100 pts)</span>
+                    </button>
+                    <button onclick="setLevel(3)" id="btn-lvl-3" class="btn-bounce py-2 px-3 rounded-xl font-bold text-xs md:text-sm flex flex-col sm:flex-row items-center justify-center gap-1 bg-slate-200 text-slate-500 border-2 border-slate-300 opacity-80">
+                        <span>⚡ Difícil <i id="lock-lvl-3" class="fa-solid fa-lock text-xs"></i></span>
+                        <span class="text-[10px] font-normal"> (Req. 100 pts Médio)</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Cartão do Desafio / Pergunta -->
+            <div id="quiz-card" class="bg-gradient-to-b from-amber-50 to-orange-50 border-4 border-kids-orange/40 rounded-3xl p-6 md:p-8 text-center flex flex-col items-center justify-center gap-6 relative overflow-hidden shadow-inner">
+                
+                <!-- Pergunta Principal -->
+                <div class="flex items-center justify-center gap-4">
+                    <span id="quiz-question" class="text-4xl md:text-6xl font-black text-slate-800 tracking-wider">
+                        5 × 3 = ?
+                    </span>
+                    <button onclick="speakQuizQuestion()" class="btn-bounce bg-amber-200 hover:bg-amber-300 text-amber-800 p-3 rounded-2xl text-xl border-2 border-amber-400">
+                        🔊
+                    </button>
+                </div>
+
+                <!-- Apoio Visual da Pergunta (emojis agrupados) -->
+                <div id="quiz-visual-hint" class="flex flex-wrap justify-center gap-2 p-3 bg-white/80 rounded-2xl border border-amber-200 max-w-full overflow-x-auto min-h-[50px] items-center text-xl md:text-2xl">
+                    <!-- Emojis de apoio gerados JS -->
+                </div>
+
+                <!-- Opções de Resposta -->
+                <div id="quiz-options" class="grid grid-cols-2 md:grid-cols-4 gap-4 w-full max-w-lg">
+                    <!-- Botões de escolha gerados JS -->
+                </div>
+
+                <!-- Feedback Visual / Explicação Didática do Erro -->
+                <div id="quiz-feedback" class="hidden w-full p-4 rounded-2xl flex flex-col items-center gap-3 transition-all animate-fade-in">
+                    <!-- Preenchido via JS em erro/acerto -->
+                </div>
+
+                <!-- Botão Próxima Questão (Aparece após responder) -->
+                <button id="btn-next" onclick="generateQuizQuestion()" class="hidden btn-bounce bg-kids-green hover:bg-green-500 text-white font-extrabold py-3 px-8 rounded-2xl text-lg border-2 border-green-600 shadow-fun flex items-center gap-2">
+                    <span>Próxima Questão</span> ➡️
+                </button>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- RODAPÉ -->
+    <footer class="max-w-4xl mx-auto w-full text-center py-4 text-slate-500 font-bold text-xs md:text-sm">
+        <p>Tabuada Divertida Infantil • Aprenda com alegria e números coloridos! 🎈✨</p>
+    </footer>
+
+    <!-- MODAL CONFIRMAÇÃO ZERAR JOGO -->
+    <div id="reset-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white border-4 border-rose-500 rounded-3xl p-6 max-w-md w-full shadow-fun text-center flex flex-col gap-4 animate-bounce-in">
+            <div class="text-5xl">⚠️</div>
+            <h3 class="text-2xl font-black text-slate-800">Zerar todo o jogo?</h3>
+            <p class="text-slate-600 text-sm font-medium">Isso irá reiniciar todos os seus pontos, acertos, erros e desbloqueios de níveis!</p>
+            <div class="flex gap-3 justify-center mt-2">
+                <button onclick="closeResetModal()" class="btn-bounce bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-2.5 px-6 rounded-2xl border-2 border-slate-300">
+                    Cancelar
+                </button>
+                <button onclick="executeReset()" class="btn-bounce bg-rose-500 hover:bg-rose-600 text-white font-bold py-2.5 px-6 rounded-2xl border-2 border-rose-700 shadow-fun">
+                    Sim, Zerar!
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS DE LÓGICA DO JOGO -->
+    <script>
+        // ESTADO GLOBAL DO APLICATIVO
+        const state = {
+            operation: '+', // '+', '-', 'x', '/'
+            mode: 'learn',  // 'learn', 'quiz'
+            learnNumber: 1, // 1 a 10
+            
+            // Estado do Quiz
+            level: 1, // 1: Fácil, 2: Médio, 3: Difícil
+            scores: {
+                correct: 0,
+                wrong: 0,
+                combo: 0,
+                points: 0
+            },
+            levelUnlocked: {
+                1: true,
+                2: false,
+                3: false
+            },
+            levelPoints: {
+                1: 0,
+                2: 0,
+                3: 0
+            },
+            currentQuestion: null,
+            answered: false
+        };
+
+        // EMOJIS DIVERTIDOS PARA APOIO VISUAL
+        const FUN_EMOJIS = ['🍎', '🐶', '⭐️', '🎈', '🚗', '🐱', '🍕', '🐥', '🍓', '🐸', '🍦', '🐼', '🎨', '🚀', '⚽️'];
+
+        // SINTETIZADOR DE VOZ
+        const synth = window.speechSynthesis;
+
+        function speakText(text) {
+            if (!synth) return;
+            synth.cancel(); // Parar falas anteriores
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'pt-BR';
+            utterance.rate = 0.9; // Velocidade ligeiramente pausada para crianças
+            utterance.pitch = 1.1; // Tom amigável
+            synth.speak(utterance);
+        }
+
+        // GERADOR DE EFEITOS DE ÁUDIO SIMPLES (Web Audio API)
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            const now = audioCtx.currentTime;
+
+            if (type === 'correct') {
+                // Arpejo festivo alegre
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(523.25, now); // C5
+                osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
+                osc.frequency.setValueAtTime(783.99, now + 0.2); // G5
+                osc.frequency.setValueAtTime(1046.50, now + 0.3); // C6
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+                osc.start(now);
+                osc.stop(now + 0.5);
+            } else if (type === 'wrong') {
+                // Som grave de erro suave
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(220, now); // A3
+                osc.frequency.setValueAtTime(180, now + 0.15);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+                osc.start(now);
+                osc.stop(now + 0.4);
+            } else if (type === 'click') {
+                // Click suave
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, now);
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+                osc.start(now);
+                osc.stop(now + 0.05);
+            } else if (type === 'unlock') {
+                // Som de conquista / desbloqueio
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(440, now);
+                osc.frequency.setValueAtTime(554.37, now + 0.1);
+                osc.frequency.setValueAtTime(659.25, now + 0.2);
+                osc.frequency.setValueAtTime(880, now + 0.3);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+                osc.start(now);
+                osc.stop(now + 0.6);
+            }
+        }
+
+        // CARREGAR E SALVAR DO LOCALSTORAGE
+        function loadStorage() {
+            try {
+                const saved = localStorage.getItem('tabuada_infantil_data');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    state.scores = parsed.scores || state.scores;
+                    state.levelUnlocked = parsed.levelUnlocked || state.levelUnlocked;
+                    state.levelPoints = parsed.levelPoints || state.levelPoints;
+                }
+            } catch(e) {
+                console.error("Erro ao carregar dados", e);
+            }
+            updateScoreUI();
+            updateLevelLockUI();
+        }
+
+        function saveStorage() {
+            try {
+                localStorage.setItem('tabuada_infantil_data', JSON.stringify({
+                    scores: state.scores,
+                    levelUnlocked: state.levelUnlocked,
+                    levelPoints: state.levelPoints
+                }));
+            } catch(e) {
+                console.error("Erro ao salvar dados", e);
+            }
+        }
+
+        // MUDANÇA DE OPERAÇÃO (+, -, x, /)
+        function setOperation(op) {
+            playSound('click');
+            state.operation = op;
+
+            // Atualizar estilização dos botões
+            const opMap = { '+': 'op-add', '-': 'op-sub', 'x': 'op-mul', '/': 'op-div' };
+            const colorMap = { '+': 'bg-kids-pink text-white border-pink-600 shadow-fun', 
+                               '-': 'bg-kids-blue text-white border-cyan-600 shadow-fun', 
+                               'x': 'bg-kids-purple text-white border-purple-700 shadow-fun', 
+                               '/': 'bg-kids-orange text-white border-orange-600 shadow-fun' };
+
+            Object.keys(opMap).forEach(key => {
+                const btn = document.getElementById(opMap[key]);
+                if (key === op) {
+                    btn.className = `op-btn btn-bounce flex-1 md:flex-none py-2 px-4 rounded-2xl font-black text-xl md:text-2xl border-2 transition-all flex items-center justify-center gap-1 ${colorMap[key]}`;
+                } else {
+                    btn.className = "op-btn btn-bounce flex-1 md:flex-none py-2 px-4 rounded-2xl font-black text-xl md:text-2xl border-2 transition-all flex items-center justify-center gap-1 bg-slate-100 text-slate-600 border-slate-300";
+                }
+            });
+
+            if (state.mode === 'learn') {
+                renderLearnMode();
+            } else {
+                generateQuizQuestion();
+            }
+        }
+
+        // MUDANÇA DE MODO (Aprender vs Quiz)
+        function switchMode(mode) {
+            playSound('click');
+            state.mode = mode;
+
+            const tabLearn = document.getElementById('tab-learn');
+            const tabQuiz = document.getElementById('tab-quiz');
+            const secLearn = document.getElementById('section-learn');
+            const secQuiz = document.getElementById('section-quiz');
+
+            if (mode === 'learn') {
+                tabLearn.className = "btn-bounce flex-1 md:flex-none py-2 px-5 rounded-xl font-bold text-base transition-all bg-white text-kids-purple shadow-sm border-2 border-kids-purple";
+                tabQuiz.className = "btn-bounce flex-1 md:flex-none py-2 px-5 rounded-xl font-bold text-base transition-all text-slate-500 hover:text-slate-800";
+                secLearn.classList.remove('hidden');
+                secQuiz.classList.add('hidden');
+                renderLearnMode();
+            } else {
+                tabQuiz.className = "btn-bounce flex-1 md:flex-none py-2 px-5 rounded-xl font-bold text-base transition-all bg-white text-kids-orange shadow-sm border-2 border-kids-orange";
+                tabLearn.className = "btn-bounce flex-1 md:flex-none py-2 px-5 rounded-xl font-bold text-base transition-all text-slate-500 hover:text-slate-800";
+                secQuiz.classList.remove('hidden');
+                secLearn.classList.add('hidden');
+                generateQuizQuestion();
+            }
+        }
+
+        // NÚMERO DA TABUADA SELECIONADO (MODO APRENDER)
+        function selectLearnNumber(num) {
+            playSound('click');
+            state.learnNumber = num;
+
+            for (let i = 1; i <= 10; i++) {
+                const btn = document.getElementById(`btn-num-${i}`);
+                if (i === num) {
+                    btn.className = "num-btn btn-bounce py-2 rounded-2xl font-black text-xl border-2 transition-all bg-kids-green text-white border-green-600 shadow-fun";
+                } else {
+                    btn.className = "num-btn btn-bounce py-2 rounded-2xl font-black text-xl border-2 transition-all bg-slate-100 text-slate-700 border-slate-300";
+                }
+            }
+            renderLearnMode();
+        }
+
+        // RENDERIZAR MODO APRENDER
+        function renderLearnMode() {
+            const list = document.getElementById('learn-list');
+            const title = document.getElementById('learn-title');
+            list.innerHTML = '';
+
+            const opNames = { '+': 'Adição', '-': 'Subtração', 'x': 'Multiplicação', '/': 'Divisão' };
+            const opSymbols = { '+': '➕', '-': '➖', 'x': '✖️', '/': '➗' };
+            const baseNum = state.learnNumber;
+
+            title.innerHTML = `Tabuada da ${opNames[state.operation]} do ${baseNum} ${opSymbols[state.operation]}`;
+
+            const emoji = FUN_EMOJIS[(baseNum - 1) % FUN_EMOJIS.length];
+
+            for (let i = 1; i <= 10; i++) {
+                let n1, n2, result, speakPhrase, visualHTML;
+
+                if (state.operation === '+') {
+                    n1 = baseNum;
+                    n2 = i;
+                    result = n1 + n2;
+                    speakPhrase = `${n1} mais ${n2} é igual a ${result}`;
+                    visualHTML = `<div class="text-base tracking-widest">${emoji.repeat(n1)} <span class="font-bold text-slate-400 text-xs">+</span> ${emoji.repeat(n2)}</div>`;
+                } else if (state.operation === '-') {
+                    n1 = baseNum + i; // Para evitar resultados negativos na infância
+                    n2 = baseNum;
+                    result = n1 - n2;
+                    speakPhrase = `${n1} menos ${n2} é igual a ${result}`;
+                    visualHTML = `<div class="text-base tracking-widest">${emoji.repeat(n1)} <span class="font-bold text-rose-500 text-xs">(-${n2})</span></div>`;
+                } else if (state.operation === 'x') {
+                    n1 = baseNum;
+                    n2 = i;
+                    result = n1 * n2;
+                    speakPhrase = `${n1} vezes ${n2} é igual a ${result}`;
+                    // Representação por grupos de soma
+                    let groups = [];
+                    for(let g=0; g<Math.min(n1, 5); g++) {
+                        groups.push(emoji.repeat(Math.min(n2, 6)));
+                    }
+                    visualHTML = `<div class="text-xs text-slate-600 font-bold">${n1} grupos de ${n2}: ${groups.join(' + ')}</div>`;
+                } else if (state.operation === '/') {
+                    n2 = baseNum;
+                    result = i;
+                    n1 = n2 * result; // Divisão exata
+                    speakPhrase = `${n1} dividido por ${n2} é igual a ${result}`;
+                    visualHTML = `<div class="text-xs text-slate-600 font-bold">${n1} divididos em ${n2} partes = ${result} para cada</div>`;
+                }
+
+                const item = document.createElement('div');
+                item.className = "bg-slate-50 border-2 border-slate-200 hover:border-kids-green p-3 rounded-2xl flex flex-col justify-between gap-2 transition-all shadow-sm hover:shadow-md";
+                item.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <span class="text-xl md:text-2xl font-black text-slate-800">
+                            ${n1} ${state.operation === 'x' ? '×' : state.operation === '/' ? '÷' : state.operation} ${n2} = <span class="text-kids-purple">${result}</span>
+                        </span>
+                        <button onclick="speakText('${speakPhrase}')" class="btn-bounce bg-white hover:bg-slate-100 text-slate-700 p-2 rounded-xl border border-slate-300 text-sm shadow-sm">
+                            🔊
+                        </button>
+                    </div>
+                    <div class="bg-white p-2 rounded-xl border border-slate-100 overflow-x-auto">
+                        ${visualHTML}
+                    </div>
+                `;
+                list.appendChild(item);
+            }
+        }
+
+        // FALA DA TABUADA COMPLETA
+        function speakFullTable() {
+            const baseNum = state.learnNumber;
+            const opNames = { '+': 'mais', '-': 'menos', 'x': 'vezes', '/': 'dividido por' };
+            let fullText = `Tabuada do ${baseNum}. `;
+
+            for (let i = 1; i <= 10; i++) {
+                let n1, n2, res;
+                if (state.operation === '+') { n1 = baseNum; n2 = i; res = n1 + n2; }
+                else if (state.operation === '-') { n1 = baseNum + i; n2 = baseNum; res = n1 - n2; }
+                else if (state.operation === 'x') { n1 = baseNum; n2 = i; res = n1 * n2; }
+                else if (state.operation === '/') { n2 = baseNum; res = i; n1 = n2 * res; }
+                
+                fullText += `${n1} ${opNames[state.operation]} ${n2} é igual a ${res}. `;
+            }
+            speakText(fullText);
+        }
+
+        // CONFIGURAÇÃO DOS NÍVEIS DO QUIZ
+        function setLevel(lvl) {
+            if (!state.levelUnlocked[lvl]) {
+                playSound('wrong');
+                speakText("Este nível ainda está bloqueado! Consiga 100 pontos no nível anterior para desbloquear!");
+                return;
+            }
+            playSound('click');
+            state.level = lvl;
+
+            // Atualizar botões de nível
+            for (let i = 1; i <= 3; i++) {
+                const btn = document.getElementById(`btn-lvl-${i}`);
+                if (i === lvl) {
+                    btn.classList.add('shadow-fun', 'ring-2', 'ring-offset-1', 'ring-orange-400');
+                } else {
+                    btn.classList.remove('shadow-fun', 'ring-2', 'ring-offset-1', 'ring-orange-400');
+                }
+            }
+
+            const badge = document.getElementById('level-badge');
+            if (lvl === 1) {
+                badge.className = "font-extrabold text-sm md:text-base px-3 py-1 rounded-xl bg-green-100 text-green-700 border border-green-300";
+                badge.innerText = "Fácil 🌱";
+            } else if (lvl === 2) {
+                badge.className = "font-extrabold text-sm md:text-base px-3 py-1 rounded-xl bg-amber-100 text-amber-700 border border-amber-300";
+                badge.innerText = "Médio 🔥";
+            } else if (lvl === 3) {
+                badge.className = "font-extrabold text-sm md:text-base px-3 py-1 rounded-xl bg-purple-100 text-purple-700 border border-purple-300";
+                badge.innerText = "Difícil ⚡";
+            }
+
+            generateQuizQuestion();
+        }
+
+        function updateLevelLockUI() {
+            // Nível 2
+            const lock2 = document.getElementById('lock-lvl-2');
+            const btn2 = document.getElementById('btn-lvl-2');
+            if (state.levelUnlocked[2]) {
+                if (lock2) lock2.className = "fa-solid fa-unlock text-xs text-green-600";
+                btn2.className = "btn-bounce py-2 px-3 rounded-xl font-bold text-xs md:text-sm flex flex-col sm:flex-row items-center justify-center gap-1 bg-kids-yellow text-slate-800 border-2 border-yellow-500 shadow-sm";
+            }
+
+            // Nível 3
+            const lock3 = document.getElementById('lock-lvl-3');
+            const btn3 = document.getElementById('btn-lvl-3');
+            if (state.levelUnlocked[3]) {
+                if (lock3) lock3.className = "fa-solid fa-unlock text-xs text-green-600";
+                btn3.className = "btn-bounce py-2 px-3 rounded-xl font-bold text-xs md:text-sm flex flex-col sm:flex-row items-center justify-center gap-1 bg-kids-purple text-white border-2 border-purple-700 shadow-sm";
+            }
+        }
+
+        // GERAR PERGUNTA DO QUIZ CONFORME NÍVEL E OPERAÇÃO
+        function generateQuizQuestion() {
+            state.answered = false;
+
+            document.getElementById('quiz-feedback').classList.add('hidden');
+            document.getElementById('btn-next').classList.add('hidden');
+
+            // Filtrar conjunto de números base conforme o nível
+            // Fácil: 1, 2, 3, 5, 10
+            // Médio: 3, 4, 5, 6, 7
+            // Difícil: 6, 7, 8, 9, 10
+            let allowedNumbers = [1, 2, 3, 5, 10];
+            if (state.level === 2) allowedNumbers = [3, 4, 5, 6, 7];
+            if (state.level === 3) allowedNumbers = [6, 7, 8, 9, 10];
+
+            const n1Base = allowedNumbers[Math.floor(Math.random() * allowedNumbers.length)];
+            const n2Base = Math.floor(Math.random() * 10) + 1; // 1 a 10
+
+            let num1, num2, answer;
+
+            if (state.operation === '+') {
+                num1 = n1Base;
+                num2 = n2Base;
+                answer = num1 + num2;
+            } else if (state.operation === '-') {
+                num1 = n1Base + n2Base; // Garante resultado positivo
+                num2 = n1Base;
+                answer = num1 - num2;
+            } else if (state.operation === 'x') {
+                num1 = n1Base;
+                num2 = n2Base;
+                answer = num1 * num2;
+            } else if (state.operation === '/') {
+                num2 = n1Base;
+                answer = n2Base;
+                num1 = num2 * answer; // Divisão sem resto
+            }
+
+            state.currentQuestion = { num1, num2, answer, op: state.operation };
+
+            // Renderizar Pergunta
+            const opDisplay = state.operation === 'x' ? '×' : state.operation === '/' ? '÷' : state.operation;
+            document.getElementById('quiz-question').innerText = `${num1} ${opDisplay} ${num2} = ?`;
+
+            // Dica visual de emojis
+            const hintContainer = document.getElementById('quiz-visual-hint');
+            const randomEmoji = FUN_EMOJIS[Math.floor(Math.random() * FUN_EMOJIS.length)];
+
+            if (state.operation === '+' || state.operation === '-') {
+                hintContainer.innerHTML = `<span>${randomEmoji.repeat(Math.min(num1, 12))}</span> <span class="text-xs text-slate-400 font-bold">(${num1})</span>`;
+            } else if (state.operation === 'x') {
+                hintContainer.innerHTML = `<span>${num1} grupos de ${num2} ${randomEmoji}</span>`;
+            } else {
+                hintContainer.innerHTML = `<span>${num1} elementos ${randomEmoji} divididos por ${num2}</span>`;
+            }
+
+            // Gerar 4 Opções de Resposta
+            const options = [answer];
+            while (options.length < 4) {
+                let wrong = answer + (Math.floor(Math.random() * 9) - 4);
+                if (wrong < 0) wrong = Math.abs(wrong) + 1;
+                if (!options.includes(wrong)) {
+                    options.push(wrong);
+                }
+            }
+
+            // Embaralhar opções
+            options.sort(() => Math.random() - 0.5);
+
+            const optionsContainer = document.getElementById('quiz-options');
+            optionsContainer.innerHTML = '';
+
+            options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = "btn-bounce bg-white hover:bg-amber-100 text-slate-800 font-black text-2xl md:text-3xl py-4 rounded-2xl border-4 border-amber-300 shadow-fun transition-all";
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(opt, btn);
+                optionsContainer.appendChild(btn);
+            });
+
+            // Falar pergunta para a criança
+            speakQuizQuestion();
+        }
+
+        function speakQuizQuestion() {
+            if (!state.currentQuestion) return;
+            const { num1, num2, op } = state.currentQuestion;
+            const opNames = { '+': 'mais', '-': 'menos', 'x': 'vezes', '/': 'dividido por' };
+            speakText(`Quanto é ${num1} ${opNames[op]} ${num2}?`);
+        }
+
+        // VERIFICAÇÃO DA RESPOSTA E EXPLICAÇÃO PEDAGÓGICA
+        function checkAnswer(selected, buttonEl) {
+            if (state.answered) return;
+            state.answered = true;
+
+            const { num1, num2, answer, op } = state.currentQuestion;
+            const feedbackEl = document.getElementById('quiz-feedback');
+            const nextBtn = document.getElementById('btn-next');
+            const optionBtns = document.getElementById('quiz-options').children;
+
+            // Desabilitar outros botões
+            for (let b of optionBtns) {
+                b.disabled = true;
+                if (parseInt(b.innerText) === answer) {
+                    b.classList.remove('bg-white', 'border-amber-300');
+                    b.classList.add('bg-emerald-400', 'text-white', 'border-emerald-600', 'ring-4', 'ring-emerald-200');
+                }
+            }
+
+            if (selected === answer) {
+                // RESPOSTA CORRETA
+                playSound('correct');
+                confetti({ particleCount: 60, spread: 60, origin: { y: 0.7 } });
+
+                buttonEl.classList.add('animate-bounce');
+
+                state.scores.correct++;
+                state.scores.combo++;
+                const gainedPoints = 10 + (state.scores.combo * 2);
+                state.scores.points += gainedPoints;
+                state.levelPoints[state.level] += gainedPoints;
+
+                feedbackEl.className = "w-full p-4 rounded-2xl flex flex-col items-center gap-2 bg-emerald-100 border-2 border-emerald-400 text-emerald-900 animate-fade-in";
+                feedbackEl.innerHTML = `
+                    <div class="text-2xl font-black flex items-center gap-2">
+                        🎉 Muito bem! Resposta Correta! (+${gainedPoints} pts)
+                    </div>
+                    <p class="font-bold text-sm">Você está mandando super bem!</p>
+                `;
+
+                speakText("Muito bem! Você acertou!");
+
+                // Checar Desbloqueio de Nível
+                checkLevelUnlocks();
+
+            } else {
+                // RESPOSTA INCORRETA (RECURSO DIDÁTICO DE ERRO)
+                playSound('wrong');
+
+                buttonEl.classList.remove('bg-white', 'border-amber-300');
+                buttonEl.classList.add('bg-rose-400', 'text-white', 'border-rose-600');
+
+                state.scores.wrong++;
+                state.scores.combo = 0;
+
+                // Gerar Justificativa Pedagógica
+                let explanation = '';
+                const emoji = FUN_EMOJIS[Math.floor(Math.random() * FUN_EMOJIS.length)];
+
+                if (op === 'x') {
+                    // Soma sucessiva
+                    let sums = Array(num1).fill(num2).join(' + ');
+                    explanation = `A multiplicação é uma soma repetida! <br><b>${num1} × ${num2}</b> significa somar o número <b>${num2}</b> exatamente <b>${num1} vezes</b>:<br><span class="text-base text-purple-700">${sums} = <b>${answer}</b></span>`;
+                } else if (op === '+') {
+                    explanation = `Para somar <b>${num1} + ${num2}</b>, juntamos todas as quantidades! <br>${emoji.repeat(Math.min(num1, 6))} mais ${emoji.repeat(Math.min(num2, 6))} é igual a <b>${answer}</b>.`;
+                } else if (op === '-') {
+                    explanation = `Na subtração de <b>${num1} - ${num2}</b>, começamos com ${num1} e tiramos ${num2}, ficando com <b>${answer}</b>!`;
+                } else if (op === '/') {
+                    explanation = `Divisão é repartir em partes iguais! Se dividirmos <b>${num1}</b> em <b>${num2}</b> grupos, cada grupo fica com <b>${answer}</b>.`;
+                }
+
+                feedbackEl.className = "w-full p-4 rounded-2xl flex flex-col items-center gap-2 bg-rose-50 border-2 border-rose-300 text-rose-900 animate-fade-in text-center";
+                feedbackEl.innerHTML = `
+                    <div class="text-xl font-black text-rose-600 flex items-center gap-2">
+                        💡 Opa! A resposta certa é <span class="bg-emerald-200 text-emerald-800 px-3 py-0.5 rounded-xl border border-emerald-400">${answer}</span>
+                    </div>
+                    <div class="bg-white p-3 rounded-xl border border-rose-200 text-sm md:text-base font-medium shadow-sm w-full max-w-md">
+                        ${explanation}
+                    </div>
+                `;
+
+                speakText(`Quase lá! A resposta correta era ${answer}.`);
+            }
+
+            feedbackEl.classList.remove('hidden');
+            nextBtn.classList.remove('hidden');
+
+            updateScoreUI();
+            saveStorage();
+        }
+
+        // CHECAR DESBLOQUEIO DE NÍVEIS
+        function checkLevelUnlocks() {
+            // Desbloquear Médio ao atingir 100 pontos no Fácil (ou total acumulado)
+            if (!state.levelUnlocked[2] && state.levelPoints[1] >= 100) {
+                state.levelUnlocked[2] = true;
+                playSound('unlock');
+                speakText("Parabéns! Você desbloqueou o Nível Médio!");
+                confetti({ particleCount: 100, spread: 80, origin: { y: 0.5 } });
+            }
+            // Desbloquear Difícil ao atingir 100 pontos no Médio
+            if (!state.levelUnlocked[3] && state.levelPoints[2] >= 100) {
+                state.levelUnlocked[3] = true;
+                playSound('unlock');
+                speakText("Incrível! Você desbloqueou o Nível Difícil!");
+                confetti({ particleCount: 120, spread: 100, origin: { y: 0.5 } });
+            }
+            updateLevelLockUI();
+        }
+
+        // ATUALIZAR PLACARES NA INTERFACE
+        function updateScoreUI() {
+            document.getElementById('score-correct').innerText = state.scores.correct;
+            document.getElementById('score-wrong').innerText = state.scores.wrong;
+            document.getElementById('score-combo').innerText = state.scores.combo;
+            document.getElementById('score-points').innerText = state.scores.points;
+        }
+
+        // CONFIRMAR ZERAR O JOGO
+        function confirmReset() {
+            playSound('click');
+            document.getElementById('reset-modal').classList.remove('hidden');
+        }
+
+        function closeResetModal() {
+            playSound('click');
+            document.getElementById('reset-modal').classList.add('hidden');
+        }
+
+        function executeReset() {
+            playSound('click');
+            state.scores = { correct: 0, wrong: 0, combo: 0, points: 0 };
+            state.levelUnlocked = { 1: true, 2: false, 3: false };
+            state.levelPoints = { 1: 0, 2: 0, 3: 0 };
+            state.level = 1;
+
+            saveStorage();
+            updateScoreUI();
+            setLevel(1);
+            updateLevelLockUI();
+            closeResetModal();
+
+            speakText("Jogo e progresso zerados com sucesso!");
+        }
+
+        // INICIALIZAÇÃO AO CARREGAR A PÁGINA
+        window.onload = function() {
+            loadStorage();
+            setOperation('+');
+            renderLearnMode();
+        };
+    </script>
+</body>
+</html>
