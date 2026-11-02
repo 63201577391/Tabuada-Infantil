@@ -1,21 +1,11 @@
 {
-  "short_name": "Tabuada",
-  "name": "Tabuada Infantil Divertida",
-  "icons": [
-    {
-      "src": "icon-192.png",
-      "type": "image/png",
-      "sizes": "192x192"
-    },
-    {
-      "src": "icon-512.png",
-      "type": "image/png",
-      "sizes": "512x512"
-    }
-  ],
-  "start_url": "./index.html",
-  "background_color": "#F3F4F6",
-  "theme_color": "#4F46E5",
+  "background_color": "#ffffff",
+  "dir": "ltr",
   "display": "standalone",
-  "orientation": "portrait"
+  "name": "63201577391.github",
+  "orientation": "any",
+  "scope": "/",
+  "short_name": "63201577391.github",
+  "start_url": "/",
+  "theme_color": "#ffffff"
 }
